@@ -56,6 +56,21 @@ Open the signup form in a private window and try three signups. Watch `/logs` fo
 
 Also check that the trap field is not visible on the signup form. If it is, the plugin could not match the field's name, so turn the trap off (set its ID to 0) and report it.
 
+## Blocking whoever fills the trap (optional, off by default)
+
+Two more settings add the source of a trapped signup to Discourse's own block lists. Entries show under Admin → Logs → Screened Emails and Screened IPs, where staff can remove them.
+
+- `signup guard trap blocks email`: the email address can not sign up again. Low risk.
+- `signup guard trap blocks ip`: the IP address is blocked. **Think before turning this on:**
+  - The block is permanent until staff remove it.
+  - Discourse also refuses logins from a blocked IP, so every existing member behind the same address (a VPN exit, a mobile carrier, a university, an office) is locked out too.
+  - Discourse merges many blocked addresses in one range into a block on the whole range.
+  - Anyone caught by mistake (see the next section) is banned, not just refused.
+
+No account exists yet when the trap fires, so there is no user to suspend. The email and the IP are everything there is to block.
+
+**Do the test signups before turning on IP blocking, or you will block yourself.** While testing, check that the IP in the `trap filled` log line is your own address and not a proxy's. If you do lock yourself out, an IP that staff added to Screened IPs as allowed is never blocked by the plugin, and an admin can remove the entry from another network or from the Rails console.
+
 ## Who the trap can catch by mistake
 
 - **Screen reader users.** The trap is hidden from the eye, not from assistive software, because hiding it from that would hide it from bots too. A blind user may hear the field and fill it.

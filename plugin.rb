@@ -62,12 +62,30 @@ after_initialize do
       case SignupGuard.verdict(params[:user_fields])
       when :trap
         Rails.logger.warn("[signup-guard] trap filled ip=#{request.remote_ip}")
+        signup_guard_block_source
         # A plain error that does not say which field caused it.
         render json: { success: false, message: I18n.t("signup_guard.generic_error") }
       when :wrong_answer
         Rails.logger.warn("[signup-guard] wrong answer ip=#{request.remote_ip}")
         render json: { success: false, message: I18n.t("signup_guard.wrong_answer") }
       end
+    end
+  end
+
+  module ::SignupGuard::UsersControllerExtension
+    private
+
+    # Adds the email and the IP to Discourse's own block lists (Admin -> Logs -> Screened
+    # Emails / Screened IPs), where staff can see and undo them. An IP that staff already
+    # allow-listed is left alone.
+    def signup_guard_block_source
+      email = params[:email].to_s.strip
+      if SiteSetting.signup_guard_trap_blocks_email && email.match?(/\A[^@\s]+@[^@\s]+\z/)
+        ScreenedEmail.block(email, ip_address: request.remote_ip)
+      end
+      ScreenedIpAddress.watch(request.remote_ip) if SiteSetting.signup_guard_trap_blocks_ip
+    rescue StandardError => e
+      Rails.logger.warn("[signup-guard] could not block: #{e.class} #{e.message}")
     end
   end
 

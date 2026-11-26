@@ -47,6 +47,28 @@ RSpec.describe "Signup guard" do
     expect(User.find_by(username: "newperson")).to be_nil
   end
 
+  it "blocks nothing on a filled trap unless told to" do
+    signup(question.id.to_s => "apples", trap.id.to_s => "x")
+    expect(ScreenedEmail.count).to eq(0)
+    expect(ScreenedIpAddress.count).to eq(0)
+  end
+
+  it "blocks the email and the IP on a filled trap when both are switched on" do
+    SiteSetting.signup_guard_trap_blocks_email = true
+    SiteSetting.signup_guard_trap_blocks_ip = true
+    signup(question.id.to_s => "apples", trap.id.to_s => "x")
+    expect(ScreenedEmail.should_block?("newperson@example.com")).to eq(true)
+    expect(ScreenedIpAddress.should_block?("127.0.0.1")).to eq(true)
+  end
+
+  it "blocks nothing on a wrong answer" do
+    SiteSetting.signup_guard_trap_blocks_email = true
+    SiteSetting.signup_guard_trap_blocks_ip = true
+    signup(question.id.to_s => "bananas")
+    expect(ScreenedEmail.count).to eq(0)
+    expect(ScreenedIpAddress.count).to eq(0)
+  end
+
   it "builds the hiding CSS from the trap field's name" do
     expect(SignupGuard.trap_css).to include(".user-field.user-field-verification-phrase-2{")
   end

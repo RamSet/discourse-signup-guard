@@ -7,6 +7,10 @@ plugins:
   signup_guard_trap_field_id:
     default: 0
     min: 0
+  signup_guard_trap_blocks_email:
+    default: false
+  signup_guard_trap_blocks_ip:
+    default: false
   signup_guard_accepted_answers:
     type: list
     list_type: compact
