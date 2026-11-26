@@ -1,0 +1,10 @@
+plugins:
+  signup_guard_enabled:
+    default: false
+  signup_guard_question_field_id:
+    default: 0
+    min: 0
+  signup_guard_accepted_answers:
+    type: list
+    list_type: compact
+    default: ""

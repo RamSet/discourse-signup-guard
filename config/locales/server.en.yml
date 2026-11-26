@@ -1,0 +1,7 @@
+en:
+  site_settings:
+    signup_guard_enabled: "Check the signup question and the hidden trap field on every new signup."
+    signup_guard_question_field_id: "ID of the required user field that holds the signup question (the number in its admin edit URL). 0 turns the question check off."
+    signup_guard_accepted_answers: "Answers that pass the signup question. Case and extra spaces are ignored."
+  signup_guard:
+    wrong_answer: "That is not the right answer to the signup question. Please try again."
