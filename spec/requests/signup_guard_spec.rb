@@ -2,11 +2,12 @@
 
 RSpec.describe "Signup guard" do
   fab!(:question) { Fabricate(:user_field, name: "What grows in an orchard?", requirement: "on_signup") }
-  fab!(:trap) { Fabricate(:user_field, name: "Leave this empty", requirement: "optional") }
+  fab!(:trap) { Fabricate(:user_field, name: "Verification phrase (2)", requirement: "optional") }
 
   before do
     SiteSetting.signup_guard_enabled = true
     SiteSetting.signup_guard_question_field_id = question.id
+    SiteSetting.signup_guard_trap_field_id = trap.id
     SiteSetting.signup_guard_accepted_answers = "apples|trees"
   end
 
@@ -39,10 +40,15 @@ RSpec.describe "Signup guard" do
     expect(User.find_by(username: "newperson")).to be_nil
   end
 
-  it "pretends success and creates nothing when the trap is filled" do
+  it "gives a plain error and creates nothing when the trap is filled" do
     body = signup(question.id.to_s => "apples", trap.id.to_s => "http://spam.example")
-    expect(body["success"]).to eq(true)
+    expect(body["success"]).to eq(false)
+    expect(body["message"]).to eq(I18n.t("signup_guard.generic_error"))
     expect(User.find_by(username: "newperson")).to be_nil
+  end
+
+  it "builds the hiding CSS from the trap field's name" do
+    expect(SignupGuard.trap_css).to include(".user-field.user-field-verification-phrase-2{")
   end
 
   it "lets signups through when the plugin is off" do

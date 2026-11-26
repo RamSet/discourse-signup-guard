@@ -1,9 +1,0 @@
-// The trap field: a user field named exactly "Leave this empty".
-// Moved off screen rather than display:none, which some bots skip.
-.user-field.user-field-leave-this-empty {
-  position: absolute !important;
-  left: -9999px !important;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-}
